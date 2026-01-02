@@ -150,3 +150,31 @@ class TransacaoCredito:
         if self.row_index is not None:
             result["row_index"] = self.row_index
         return result
+
+
+@dataclass
+class Saldo:
+    """
+    Entidade que representa o saldo geral
+    """
+    valor: str
+    
+    def to_dict(self) -> dict:
+        """Converte a entidade para dicionário"""
+        return {"valor": self.valor}
+
+
+@dataclass
+class SaldoConta:
+    """
+    Entidade que representa o saldo de uma conta
+    """
+    conta: str
+    saldo: str
+    
+    def to_dict(self) -> dict:
+        """Converte a entidade para dicionário"""
+        return {
+            "conta": self.conta,
+            "saldo": self.saldo
+        }

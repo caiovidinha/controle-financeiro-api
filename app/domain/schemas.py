@@ -363,3 +363,29 @@ class SuccessResponse(BaseModel):
         json_schema_extra = {
             "example": {"message": "Operação realizada com sucesso"}
         }
+
+
+# ==================== SCHEMAS DE SALDOS ====================
+
+class SaldoSchema(BaseModel):
+    """Schema do saldo geral"""
+    valor: str = Field(..., description="Valor do saldo geral")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {"valor": "R$ 5.432,10"}
+        }
+
+
+class SaldoContaSchema(BaseModel):
+    """Schema do saldo por conta"""
+    conta: str = Field(..., description="Nome da conta")
+    saldo: str = Field(..., description="Saldo da conta")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "conta": "Conta Corrente",
+                "saldo": "R$ 2.543,50"
+            }
+        }

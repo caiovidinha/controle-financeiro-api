@@ -6,6 +6,7 @@ from app.core.config import get_settings
 from app.data.repositories.google_sheets_repository import GoogleSheetsTransacaoRepository
 from app.data.repositories.google_sheets_credito_repository import GoogleSheetsCreditoRepository
 from app.data.repositories.google_sheets_configuracao_repository import GoogleSheetsConfiguracaoRepository
+from app.data.repositories.google_sheets_api_repository import GoogleSheetsAPIRepository
 from app.use_cases.listar_transacoes_paginadas import ListarTransacoesPaginadas
 from app.use_cases.criar_transacao import CriarTransacao
 from app.use_cases.atualizar_transacao import AtualizarTransacao
@@ -15,6 +16,7 @@ from app.use_cases.criar_transacao_credito import CriarTransacaoCredito
 from app.use_cases.atualizar_transacao_credito import AtualizarTransacaoCredito
 from app.use_cases.deletar_transacao_credito import DeletarTransacaoCredito
 from app.use_cases.verificar_saude import VerificarSaude
+from app.use_cases.saldos import ObterSaldoGeral, ObterSaldoPorConta
 from app.use_cases.configuracoes import (
     ListarCategorias, CriarCategoria, DeletarCategoria,
     ListarStatus, ListarMeses,
@@ -209,3 +211,26 @@ def get_deletar_cartao_use_case() -> DeletarCartao:
     """Factory para deletar cartão"""
     repository = get_configuracao_repository()
     return DeletarCartao(repository)
+
+
+# ==================== SALDOS ====================
+
+@lru_cache()
+def get_api_repository():
+    """
+    Factory para obter instância do repositório da página API
+    """
+    settings = get_settings()
+    return GoogleSheetsAPIRepository(settings)
+
+
+def get_obter_saldo_geral_use_case() -> ObterSaldoGeral:
+    """Factory para obter saldo geral"""
+    repository = get_api_repository()
+    return ObterSaldoGeral(repository)
+
+
+def get_obter_saldo_por_conta_use_case() -> ObterSaldoPorConta:
+    """Factory para obter saldo por conta"""
+    repository = get_api_repository()
+    return ObterSaldoPorConta(repository)

@@ -13,10 +13,10 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     app_description: str = "API para gerenciar transações financeiras através do Google Sheets"
     
-    # Google Sheets
-    google_sheets_id: str
-    google_service_account_email: str
-    google_private_key: str
+    # Google Sheets - Opcionais para permitir que a app inicie mesmo sem configuração
+    google_sheets_id: str = ""
+    google_service_account_email: str = ""
+    google_private_key: str = ""
     google_sheet_name: str = "Extrato"
     
     # CORS

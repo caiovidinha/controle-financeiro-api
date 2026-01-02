@@ -13,14 +13,23 @@ uvicorn main:app --host 0.0.0.0 --port $PORT
 ## Environment Variables
 Você precisa adicionar as seguintes variáveis de ambiente no Render Dashboard:
 
-### Obrigatórias:
-- `GOOGLE_SHEETS_CREDENTIALS_JSON` - JSON completo das credenciais do Google Sheets (cole o conteúdo completo do arquivo de credenciais)
-- `GOOGLE_SHEET_ID` - ID da planilha do Google Sheets
+### Obrigatórias (para funcionalidade completa):
+- `GOOGLE_SHEETS_ID` - ID da planilha do Google Sheets (encontrado na URL da planilha)
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Email da conta de serviço do Google (ex: `xxx@xxx.iam.gserviceaccount.com`)
+- `GOOGLE_PRIVATE_KEY` - Chave privada da conta de serviço (incluindo `-----BEGIN PRIVATE KEY-----` e `-----END PRIVATE KEY-----`)
+  - **IMPORTANTE**: No Render, cole a chave completa com as quebras de linha. Se tiver problemas, substitua `\n` por quebras de linha reais.
 
 ### Opcionais (com valores padrão):
 - `PORT` - Porta do servidor (padrão: 10000 no Render)
-- `APP_NAME` - Nome da aplicação (padrão: "Controle Financeiro API")
-- `CORS_ORIGINS` - Lista de origens permitidas para CORS (separadas por vírgula)
+- `APP_NAME` - Nome da aplicação (padrão: "API Controle Financeiro")
+- `GOOGLE_SHEET_NAME` - Nome da aba principal (padrão: "Extrato")
+- `CORS_ORIGINS` - Lista de origens permitidas para CORS (padrão: "*")
+
+### Como configurar no Render:
+1. Vá para o seu serviço no Dashboard
+2. Clique em "Environment" no menu lateral
+3. Adicione cada variável clicando em "Add Environment Variable"
+4. Para `GOOGLE_PRIVATE_KEY`, use o tipo "Secret" ao invés de "Plain Text"
 
 ## Python Version
 O projeto usa Python 3.12.0 (definido em `.python-version` e `runtime.txt`)

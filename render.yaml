@@ -1,18 +1,19 @@
 services:
   - type: web
     name: controle-financeiro-api
-    runti10me: python
-    plan: free  # ou 'starter' para produção
+    runtime: python
+    plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: python -m uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: APP_NAME
-        value: Controle Financeiro API
+        value: API Controle Financeiro
       - key: CORS_ORIGINS
         value: "*"
-      # Adicione estas variáveis manualmente no Render Dashboard (segredos):
-      # - GOOGLE_SHEETS_CREDENTIALS_JSON
-      # - GOOGLE_SHEET_ID
+      # IMPORTANTE: Adicione estas variáveis manualmente no Render Dashboard:
+      # - GOOGLE_SHEETS_ID (valor: ID da sua planilha)
+      # - GOOGLE_SERVICE_ACCOUNT_EMAIL (valor: email da conta de serviço)
+      # - GOOGLE_PRIVATE_KEY (tipo: Secret, valor: chave privada completa com -----BEGIN/END-----)
     healthCheckPath: /api/health
