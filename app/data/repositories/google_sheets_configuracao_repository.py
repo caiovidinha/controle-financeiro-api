@@ -4,7 +4,7 @@ Repositório de configurações usando Google Sheets
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Optional
-from app.domain.entities import Categoria, Status, Conta, Cartao
+from app.domain.entities import Categoria, Status, Conta, Cartao, Mes
 from app.data.repositories.configuracao_repository_interface import ConfiguracaoRepositoryInterface
 from app.core.config import Settings
 
@@ -181,6 +181,18 @@ class GoogleSheetsConfiguracaoRepository(ConfiguracaoRepositoryInterface):
             status_list.extend([Status(nome=v, tipo="DESPESA") for v in despesas])
         
         return status_list
+    
+    # ==================== MESES ====================
+    
+    def get_all_meses(self) -> List[Mes]:
+        """
+        Obtém todos os meses da coluna G
+        
+        Returns:
+            Lista de meses
+        """
+        meses = self._get_column_values('G')
+        return [Mes(nome=m) for m in meses]
     
     # ==================== CONTAS ====================
     

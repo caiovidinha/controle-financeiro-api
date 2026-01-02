@@ -4,12 +4,20 @@ Dependências da API - Injeção de dependências
 from functools import lru_cache
 from app.core.config import get_settings
 from app.data.repositories.google_sheets_repository import GoogleSheetsTransacaoRepository
+from app.data.repositories.google_sheets_credito_repository import GoogleSheetsCreditoRepository
 from app.data.repositories.google_sheets_configuracao_repository import GoogleSheetsConfiguracaoRepository
 from app.use_cases.listar_transacoes_paginadas import ListarTransacoesPaginadas
+from app.use_cases.criar_transacao import CriarTransacao
+from app.use_cases.atualizar_transacao import AtualizarTransacao
+from app.use_cases.deletar_transacao import DeletarTransacao
+from app.use_cases.listar_transacoes_credito_paginadas import ListarTransacoesCreditoPaginadas
+from app.use_cases.criar_transacao_credito import CriarTransacaoCredito
+from app.use_cases.atualizar_transacao_credito import AtualizarTransacaoCredito
+from app.use_cases.deletar_transacao_credito import DeletarTransacaoCredito
 from app.use_cases.verificar_saude import VerificarSaude
 from app.use_cases.configuracoes import (
     ListarCategorias, CriarCategoria, DeletarCategoria,
-    ListarStatus,
+    ListarStatus, ListarMeses,
     ListarContas, CriarConta, AtualizarConta, DeletarConta,
     ListarCartoes, CriarCartao, AtualizarCartao, DeletarCartao
 )
@@ -34,12 +42,79 @@ def get_listar_transacoes_use_case() -> ListarTransacoesPaginadas:
     return ListarTransacoesPaginadas(repository)
 
 
+def get_criar_transacao_use_case() -> CriarTransacao:
+    """
+    Factory para obter instância do caso de uso de criar transação
+    """
+    repository = get_transacao_repository()
+    return CriarTransacao(repository)
+
+
+def get_atualizar_transacao_use_case() -> AtualizarTransacao:
+    """
+    Factory para obter instância do caso de uso de atualizar transação
+    """
+    repository = get_transacao_repository()
+    return AtualizarTransacao(repository)
+
+
+def get_deletar_transacao_use_case() -> DeletarTransacao:
+    """
+    Factory para obter instância do caso de uso de deletar transação
+    """
+    repository = get_transacao_repository()
+    return DeletarTransacao(repository)
+
+
 def get_verificar_saude_use_case() -> VerificarSaude:
     """
     Factory para obter instância do caso de uso de verificar saúde
     """
     repository = get_transacao_repository()
     return VerificarSaude(repository)
+
+
+# ==================== TRANSAÇÕES DE CRÉDITO ====================
+
+@lru_cache()
+def get_transacao_credito_repository():
+    """
+    Factory para obter instância do repositório de transações de crédito
+    """
+    settings = get_settings()
+    return GoogleSheetsCreditoRepository(settings)
+
+
+def get_listar_transacoes_credito_use_case() -> ListarTransacoesCreditoPaginadas:
+    """
+    Factory para obter instância do caso de uso de listar transações de crédito
+    """
+    repository = get_transacao_credito_repository()
+    return ListarTransacoesCreditoPaginadas(repository)
+
+
+def get_criar_transacao_credito_use_case() -> CriarTransacaoCredito:
+    """
+    Factory para obter instância do caso de uso de criar transação de crédito
+    """
+    repository = get_transacao_credito_repository()
+    return CriarTransacaoCredito(repository)
+
+
+def get_atualizar_transacao_credito_use_case() -> AtualizarTransacaoCredito:
+    """
+    Factory para obter instância do caso de uso de atualizar transação de crédito
+    """
+    repository = get_transacao_credito_repository()
+    return AtualizarTransacaoCredito(repository)
+
+
+def get_deletar_transacao_credito_use_case() -> DeletarTransacaoCredito:
+    """
+    Factory para obter instância do caso de uso de deletar transação de crédito
+    """
+    repository = get_transacao_credito_repository()
+    return DeletarTransacaoCredito(repository)
 
 
 # ==================== CONFIGURAÇÕES ====================
@@ -77,6 +152,13 @@ def get_listar_status_use_case() -> ListarStatus:
     """Factory para listar status"""
     repository = get_configuracao_repository()
     return ListarStatus(repository)
+
+
+# Meses
+def get_listar_meses_use_case() -> ListarMeses:
+    """Factory para listar meses"""
+    repository = get_configuracao_repository()
+    return ListarMeses(repository)
 
 
 # Contas

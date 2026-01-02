@@ -15,6 +15,7 @@ class TransacaoSchema(BaseModel):
     detalhes: Optional[str] = Field(None, description="Detalhes adicionais")
     situacao: str = Field(..., description="Situação da transação")
     conta: str = Field(..., description="Conta relacionada")
+    row_index: Optional[int] = Field(None, description="Índice da linha na planilha")
 
     class Config:
         json_schema_extra = {
@@ -23,6 +24,59 @@ class TransacaoSchema(BaseModel):
                 "descritivo": "Supermercado",
                 "valor": "R$ 150,00",
                 "data": "15/12/2025",
+                "mes": "Dezembro",
+                "detalhes": "Compras mensais",
+                "situacao": "Pago",
+                "conta": "Conta Corrente",
+                "row_index": 2
+            }
+        }
+
+
+class CreateTransacaoRequest(BaseModel):
+    """Schema para criar uma nova transação"""
+    tipo: str = Field(..., description="Tipo da transação (ex: Receita, Despesa)")
+    descritivo: str = Field(..., description="Descrição da transação")
+    valor: str = Field(..., description="Valor da transação (ex: R$ 150,00)")
+    data: str = Field(..., description="Data da transação (DD/MM/YYYY)")
+    mes: str = Field(..., description="Mês da transação (ex: Janeiro, Dezembro)")
+    detalhes: Optional[str] = Field("", description="Detalhes adicionais")
+    situacao: str = Field(..., description="Situação da transação")
+    conta: str = Field(..., description="Conta relacionada")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "Despesa",
+                "descritivo": "Supermercado",
+                "valor": "R$ 150,00",
+                "data": "31/12/2025",
+                "mes": "Dezembro",
+                "detalhes": "Compras mensais",
+                "situacao": "Pago",
+                "conta": "Conta Corrente"
+            }
+        }
+
+
+class UpdateTransacaoRequest(BaseModel):
+    """Schema para atualizar uma transação existente"""
+    tipo: str = Field(..., description="Tipo da transação (ex: Receita, Despesa)")
+    descritivo: str = Field(..., description="Descrição da transação")
+    valor: str = Field(..., description="Valor da transação (ex: R$ 150,00)")
+    data: str = Field(..., description="Data da transação (DD/MM/YYYY)")
+    mes: str = Field(..., description="Mês da transação (ex: Janeiro, Dezembro)")
+    detalhes: Optional[str] = Field("", description="Detalhes adicionais")
+    situacao: str = Field(..., description="Situação da transação")
+    conta: str = Field(..., description="Conta relacionada")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "Despesa",
+                "descritivo": "Supermercado",
+                "valor": "R$ 150,00",
+                "data": "31/12/2025",
                 "mes": "Dezembro",
                 "detalhes": "Compras mensais",
                 "situacao": "Pago",
@@ -46,6 +100,7 @@ class TransacaoFilterParams(BaseModel):
     mes: Optional[str] = Field(None, description="Mês da transação (01-Janeiro a 12-Dezembro)")
     situacao: Optional[str] = Field(None, description="Situação: 'A pagar', 'Pago', 'A receber', 'Recebido'")
     conta: Optional[str] = Field(None, description="Nome da conta")
+    order_by: str = Field("data", description="Campo para ordenação: data, tipo, categoria, valor, situacao, conta")
     
     class Config:
         json_schema_extra = {
@@ -56,7 +111,8 @@ class TransacaoFilterParams(BaseModel):
                 "data_fim": "31/12/2025",
                 "mes": "Dezembro",
                 "situacao": "Pago",
-                "conta": "Conta Corrente"
+                "conta": "Conta Corrente",
+                "order_by": "data"
             }
         }
 
@@ -88,6 +144,134 @@ class HealthCheckResponse(BaseModel):
     error: Optional[str] = Field(None, description="Mensagem de erro, se houver")
 
 
+# ==================== SCHEMAS DE TRANSAÇÕES DE CRÉDITO ====================
+
+class TransacaoCreditoSchema(BaseModel):
+    """Schema de uma transação de cartão de crédito para API"""
+    tipo: str = Field(..., description="Tipo da transação (ex: Receita, Despesa)")
+    descritivo: str = Field(..., description="Descrição da transação")
+    valor: str = Field(..., description="Valor da transação")
+    data: str = Field(..., description="Data da transação")
+    mes: str = Field(..., description="Mês da transação")
+    detalhes: Optional[str] = Field(None, description="Detalhes adicionais")
+    situacao: str = Field(..., description="Situação da transação")
+    cartao: str = Field(..., description="Cartão relacionado")
+    row_index: Optional[int] = Field(None, description="Índice da linha na planilha")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "Despesa",
+                "descritivo": "Restaurante",
+                "valor": "R$ 85,00",
+                "data": "15/12/2025",
+                "mes": "Dezembro",
+                "detalhes": "Almoço",
+                "situacao": "Pago",
+                "cartao": "Nubank",
+                "row_index": 2
+            }
+        }
+
+
+class CreateTransacaoCreditoRequest(BaseModel):
+    """Schema para criar uma nova transação de crédito"""
+    tipo: str = Field(..., description="Tipo da transação (ex: Receita, Despesa)")
+    descritivo: str = Field(..., description="Descrição da transação")
+    valor: str = Field(..., description="Valor da transação (ex: R$ 85,00)")
+    data: str = Field(..., description="Data da transação (DD/MM/YYYY)")
+    mes: str = Field(..., description="Mês da transação (ex: Janeiro, Dezembro)")
+    detalhes: Optional[str] = Field("", description="Detalhes adicionais")
+    situacao: str = Field(..., description="Situação da transação")
+    cartao: str = Field(..., description="Cartão relacionado")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "Despesa",
+                "descritivo": "Restaurante",
+                "valor": "R$ 85,00",
+                "data": "31/12/2025",
+                "mes": "Dezembro",
+                "detalhes": "Almoço",
+                "situacao": "Pago",
+                "cartao": "Nubank"
+            }
+        }
+
+
+class UpdateTransacaoCreditoRequest(BaseModel):
+    """Schema para atualizar uma transação de crédito existente"""
+    tipo: str = Field(..., description="Tipo da transação (ex: Receita, Despesa)")
+    descritivo: str = Field(..., description="Descrição da transação")
+    valor: str = Field(..., description="Valor da transação (ex: R$ 85,00)")
+    data: str = Field(..., description="Data da transação (DD/MM/YYYY)")
+    mes: str = Field(..., description="Mês da transação (ex: Janeiro, Dezembro)")
+    detalhes: Optional[str] = Field("", description="Detalhes adicionais")
+    situacao: str = Field(..., description="Situação da transação")
+    cartao: str = Field(..., description="Cartão relacionado")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "Despesa",
+                "descritivo": "Restaurante",
+                "valor": "R$ 85,00",
+                "data": "31/12/2025",
+                "mes": "Dezembro",
+                "detalhes": "Almoço",
+                "situacao": "Pago",
+                "cartao": "Nubank"
+            }
+        }
+
+
+class TransacaoCreditoFilterParams(BaseModel):
+    """Parâmetros de filtro para transações de crédito"""
+    tipo: Optional[str] = Field(None, description="Tipo da transação: RECEITA ou DESPESA")
+    categoria: Optional[str] = Field(None, description="Categoria/descritivo da transação")
+    data_inicio: Optional[str] = Field(None, description="Data inicial (formato: DD/MM/YYYY)")
+    data_fim: Optional[str] = Field(None, description="Data final (formato: DD/MM/YYYY)")
+    mes: Optional[str] = Field(None, description="Mês da transação (01-Janeiro a 12-Dezembro)")
+    situacao: Optional[str] = Field(None, description="Situação: 'A pagar', 'Pago', 'A receber', 'Recebido'")
+    cartao: Optional[str] = Field(None, description="Nome do cartão")
+    order_by: str = Field("data", description="Campo para ordenação: data, tipo, categoria, valor, situacao, cartao")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "tipo": "DESPESA",
+                "categoria": "Restaurante",
+                "data_inicio": "01/12/2025",
+                "data_fim": "31/12/2025",
+                "mes": "Dezembro",
+                "situacao": "Pago",
+                "cartao": "Nubank",
+                "order_by": "data"
+            }
+        }
+
+
+class PaginatedCreditoResponse(BaseModel):
+    """Resposta paginada para transações de crédito"""
+    total: int = Field(..., description="Total de itens")
+    page: int = Field(..., description="Página atual")
+    page_size: int = Field(..., description="Tamanho da página")
+    total_pages: int = Field(..., description="Total de páginas")
+    items: List[TransacaoCreditoSchema] = Field(..., description="Lista de transações de crédito")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total": 100,
+                "page": 1,
+                "page_size": 10,
+                "total_pages": 10,
+                "items": []
+            }
+        }
+
+
 # ==================== SCHEMAS DE CONFIGURAÇÕES ====================
 
 class CategoriaSchema(BaseModel):
@@ -115,6 +299,18 @@ class StatusSchema(BaseModel):
             "example": {
                 "nome": "Pago",
                 "tipo": "DESPESA"
+            }
+        }
+
+
+class MesSchema(BaseModel):
+    """Schema de um mês"""
+    nome: str = Field(..., description="Nome do mês")
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "nome": "Janeiro"
             }
         }
 

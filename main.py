@@ -4,7 +4,7 @@ API Controle Financeiro - Ponto de entrada da aplicação
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
-from app.api.routes import transacoes, health, configuracoes
+from app.api.routes import transacoes, transacoes_credito, health, configuracoes
 
 # Configurações
 settings = get_settings()
@@ -27,6 +27,7 @@ app.add_middleware(
 
 # Incluir routers
 app.include_router(transacoes.router)
+app.include_router(transacoes_credito.router)
 app.include_router(health.router)
 app.include_router(configuracoes.router)
 
@@ -39,6 +40,7 @@ async def root():
         "version": settings.app_version,
         "endpoints": {
             "transacoes": "/api/transacoes",
+            "transacoes_credito": "/api/transacoes-credito",
             "configuracoes": "/api/configuracoes",
             "health": "/api/health",
             "docs": "/docs",

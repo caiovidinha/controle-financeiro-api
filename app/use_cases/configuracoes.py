@@ -3,7 +3,7 @@ Use Cases para gerenciamento de configurações
 """
 from typing import List
 from app.data.repositories.configuracao_repository_interface import ConfiguracaoRepositoryInterface
-from app.domain.entities import Categoria, Status, Conta, Cartao
+from app.domain.entities import Categoria, Status, Conta, Cartao, Mes
 
 
 # ==================== CATEGORIAS ====================
@@ -75,6 +75,19 @@ class ListarStatus:
             raise ValueError("Tipo deve ser 'RECEITA' ou 'DESPESA'")
         
         return self.repository.get_all_status(tipo)
+
+
+# ==================== MESES ====================
+
+class ListarMeses:
+    """Caso de uso para listar todos os meses"""
+    
+    def __init__(self, repository: ConfiguracaoRepositoryInterface):
+        self.repository = repository
+    
+    def execute(self) -> List[Mes]:
+        """Executa o caso de uso"""
+        return self.repository.get_all_meses()
 
 
 # ==================== CONTAS ====================

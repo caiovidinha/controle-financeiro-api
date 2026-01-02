@@ -1,18 +1,19 @@
 """
-Repositório de transações usando Google Sheets
+Repositório Google Sheets para transações de cartão de crédito
 """
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from app.domain.entities import Transacao
-from app.data.repositories.transacao_repository_interface import TransacaoRepositoryInterface
+
 from app.core.config import Settings
+from app.data.repositories.transacao_credito_repository_interface import TransacaoCreditoRepositoryInterface
+from app.domain.entities import TransacaoCredito
 
 
-class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
+class GoogleSheetsCreditoRepository(TransacaoCreditoRepositoryInterface):
     """
-    Implementação do repositório de transações usando Google Sheets
+    Implementação do repositório usando Google Sheets como fonte de dados
     """
     
     def __init__(self, settings: Settings):
@@ -24,7 +25,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
         """
         self.settings = settings
         self.sheets_id = settings.google_sheets_id
-        self.sheet_name = settings.google_sheet_name
+        self.sheet_name = "Extrato Crédito"
         self.spreadsheet = None
         self._connect()
     
@@ -100,17 +101,17 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             print(f"Erro ao obter dados da planilha: {e}")
             return []
     
-    def _dict_to_entity(self, data: Dict[str, str]) -> Transacao:
+    def _dict_to_entity(self, data: Dict[str, str]) -> TransacaoCredito:
         """
-        Converte um dicionário em uma entidade Transacao
+        Converte um dicionário em uma entidade TransacaoCredito
         
         Args:
             data: Dicionário com os dados (pode incluir _row_index)
             
         Returns:
-            Entidade Transacao
+            Entidade TransacaoCredito
         """
-        return Transacao(
+        return TransacaoCredito(
             tipo=data.get("TIPO", ""),
             descritivo=data.get("DESCRITIVO", ""),
             valor=data.get("VALOR", ""),
@@ -118,7 +119,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             mes=data.get("MÊS", ""),
             detalhes=data.get("DETALHES", ""),
             situacao=data.get("SITUAÇÃO", ""),
-            conta=data.get("CONTA", ""),
+            cartao=data.get("CARTÃO", ""),
             row_index=data.get("_row_index")
         )
     
@@ -139,16 +140,16 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
     
     def _apply_filters(
         self,
-        transacoes: List[Transacao],
+        transacoes: List[TransacaoCredito],
         tipo: Optional[str] = None,
         categoria: Optional[str] = None,
         data_inicio: Optional[str] = None,
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
-    ) -> List[Transacao]:
+    ) -> List[TransacaoCredito]:
         """
         Aplica filtros à lista de transações
         
@@ -160,8 +161,8 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             data_fim: Data final (DD/MM/YYYY)
             mes: Filtro por mês
             situacao: Filtro por situação
-            conta: Filtro por conta
-            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, conta)
+            cartao: Filtro por cartão
+            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
             
         Returns:
             Lista filtrada de transações
@@ -204,23 +205,23 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             situacao_lower = situacao.lower()
             filtered = [t for t in filtered if situacao_lower in t.situacao.lower()]
         
-        # Filtro por conta (case-insensitive)
-        if conta:
-            conta_lower = conta.lower()
-            filtered = [t for t in filtered if conta_lower in t.conta.lower()]
+        # Filtro por cartão (case-insensitive)
+        if cartao:
+            cartao_lower = cartao.lower()
+            filtered = [t for t in filtered if cartao_lower in t.cartao.lower()]
         
         # Ordenação
         filtered = self._sort_transacoes(filtered, order_by)
         
         return filtered
     
-    def _sort_transacoes(self, transacoes: List[Transacao], order_by: str) -> List[Transacao]:
+    def _sort_transacoes(self, transacoes: List[TransacaoCredito], order_by: str) -> List[TransacaoCredito]:
         """
         Ordena transações pelo campo especificado
         
         Args:
             transacoes: Lista de transações
-            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, conta)
+            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
             
         Returns:
             Lista ordenada
@@ -248,8 +249,8 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             return sorted(transacoes, key=lambda t: parse_valor(t.valor), reverse=True)
         elif order_by == "situacao":
             return sorted(transacoes, key=lambda t: t.situacao.lower())
-        elif order_by == "conta":
-            return sorted(transacoes, key=lambda t: t.conta.lower())
+        elif order_by == "cartao":
+            return sorted(transacoes, key=lambda t: t.cartao.lower())
         else:
             # Se order_by inválido, retorna por data
             return sorted(
@@ -266,9 +267,9 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
-    ) -> List[Transacao]:
+    ) -> List[TransacaoCredito]:
         """
         Obtém todas as transações com filtros opcionais
         
@@ -279,11 +280,11 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             data_fim: Data final (DD/MM/YYYY)
             mes: Filtro por mês
             situacao: Filtro por situação
-            conta: Filtro por conta
-            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, conta)
+            cartao: Filtro por cartão
+            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
         
         Returns:
-            Lista de entidades Transacao
+            Lista de entidades TransacaoCredito
         """
         raw_data = self._get_raw_data()
         all_transacoes = [self._dict_to_entity(item) for item in raw_data]
@@ -295,7 +296,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             data_fim=data_fim,
             mes=mes,
             situacao=situacao,
-            conta=conta,
+            cartao=cartao,
             order_by=order_by
         )
     
@@ -309,7 +310,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
     ) -> Dict[str, Any]:
         """
@@ -324,8 +325,8 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             data_fim: Data final (DD/MM/YYYY)
             mes: Filtro por mês
             situacao: Filtro por situação
-            conta: Filtro por conta
-            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, conta)
+            cartao: Filtro por cartão
+            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
             
         Returns:
             Dicionário com dados paginados e lista de entidades
@@ -337,7 +338,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             data_fim=data_fim,
             mes=mes,
             situacao=situacao,
-            conta=conta,
+            cartao=cartao,
             order_by=order_by
         )
         total = len(all_transacoes)
@@ -360,15 +361,15 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             "items": page_transacoes
         }
     
-    def create(self, transacao: Transacao) -> Transacao:
+    def create(self, transacao: TransacaoCredito) -> TransacaoCredito:
         """
-        Cria uma nova transação na planilha
+        Cria uma nova transação de crédito na planilha
         
         Args:
-            transacao: Entidade Transacao a ser criada
+            transacao: Entidade TransacaoCredito a ser criada
             
         Returns:
-            Entidade Transacao criada
+            Entidade TransacaoCredito criada
         """
         try:
             if not self.spreadsheet:
@@ -385,7 +386,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
                 transacao.mes,
                 transacao.detalhes or "",
                 transacao.situacao,
-                transacao.conta
+                transacao.cartao
             ]
             
             # Adiciona ao final da planilha
@@ -394,19 +395,19 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             return transacao
             
         except Exception as e:
-            print(f"Erro ao criar transação: {e}")
-            raise Exception(f"Erro ao criar transação: {str(e)}")
+            print(f"Erro ao criar transação de crédito: {e}")
+            raise Exception(f"Erro ao criar transação de crédito: {str(e)}")
     
-    def update(self, row_index: int, transacao: Transacao) -> Transacao:
+    def update(self, row_index: int, transacao: TransacaoCredito) -> TransacaoCredito:
         """
-        Atualiza uma transação existente na planilha
+        Atualiza uma transação de crédito existente na planilha
         
         Args:
             row_index: Índice da linha (2 = primeira linha de dados, pois linha 1 é o cabeçalho)
-            transacao: Entidade Transacao com os novos dados
+            transacao: Entidade TransacaoCredito com os novos dados
             
         Returns:
-            Entidade Transacao atualizada
+            Entidade TransacaoCredito atualizada
         """
         try:
             if not self.spreadsheet:
@@ -426,7 +427,7 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
                 transacao.mes,
                 transacao.detalhes or "",
                 transacao.situacao,
-                transacao.conta
+                transacao.cartao
             ]
             
             # Atualiza a linha inteira (colunas A até H)
@@ -436,12 +437,12 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             return transacao
             
         except Exception as e:
-            print(f"Erro ao atualizar transação: {e}")
-            raise Exception(f"Erro ao atualizar transação: {str(e)}")
+            print(f"Erro ao atualizar transação de crédito: {e}")
+            raise Exception(f"Erro ao atualizar transação de crédito: {str(e)}")
     
     def delete(self, row_index: int) -> bool:
         """
-        Deleta uma transação da planilha
+        Deleta uma transação de crédito da planilha
         
         Args:
             row_index: Índice da linha (2 = primeira linha de dados, pois linha 1 é o cabeçalho)
@@ -462,5 +463,5 @@ class GoogleSheetsTransacaoRepository(TransacaoRepositoryInterface):
             return True
             
         except Exception as e:
-            print(f"Erro ao deletar transação: {e}")
-            raise Exception(f"Erro ao deletar transação: {str(e)}")
+            print(f"Erro ao deletar transação de crédito: {e}")
+            raise Exception(f"Erro ao deletar transação de crédito: {str(e)}")

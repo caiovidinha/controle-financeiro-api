@@ -5,20 +5,20 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from typing import List
 from app.domain.schemas import (
     CategoriaSchema, CreateCategoriaRequest,
-    StatusSchema,
+    StatusSchema, MesSchema,
     ContaSchema, CreateContaRequest, UpdateContaRequest,
     CartaoSchema, CreateCartaoRequest, UpdateCartaoRequest,
     SuccessResponse
 )
 from app.use_cases.configuracoes import (
     ListarCategorias, CriarCategoria, DeletarCategoria,
-    ListarStatus,
+    ListarStatus, ListarMeses,
     ListarContas, CriarConta, AtualizarConta, DeletarConta,
     ListarCartoes, CriarCartao, AtualizarCartao, DeletarCartao
 )
 from app.api.dependencies import (
     get_listar_categorias_use_case, get_criar_categoria_use_case, get_deletar_categoria_use_case,
-    get_listar_status_use_case,
+    get_listar_status_use_case, get_listar_meses_use_case,
     get_listar_contas_use_case, get_criar_conta_use_case, get_atualizar_conta_use_case, get_deletar_conta_use_case,
     get_listar_cartoes_use_case, get_criar_cartao_use_case, get_atualizar_cartao_use_case, get_deletar_cartao_use_case
 )
@@ -91,6 +91,20 @@ async def listar_status(
         return [StatusSchema(**s.to_dict()) for s in status_list]
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== MESES ====================
+
+@router.get("/meses", response_model=List[MesSchema])
+async def listar_meses(
+    use_case: ListarMeses = Depends(get_listar_meses_use_case)
+):
+    """Lista todos os meses da coluna G (Configurações!G2:G)"""
+    try:
+        meses = use_case.execute()
+        return [MesSchema(**m.to_dict()) for m in meses]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

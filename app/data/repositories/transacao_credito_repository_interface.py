@@ -1,14 +1,14 @@
 """
-Interface do repositório de transações
+Interface do repositório de transações de crédito
 """
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
-from app.domain.entities import Transacao
+from app.domain.entities import TransacaoCredito
 
 
-class TransacaoRepositoryInterface(ABC):
+class TransacaoCreditoRepositoryInterface(ABC):
     """
-    Interface que define o contrato para repositórios de transação
+    Interface que define o contrato para repositórios de transação de crédito
     """
     
     @abstractmethod
@@ -20,10 +20,10 @@ class TransacaoRepositoryInterface(ABC):
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
-    ) -> List[Transacao]:
-        """Obtém todas as transações com filtros opcionais"""
+    ) -> List[TransacaoCredito]:
+        """Obtém todas as transações de crédito com filtros opcionais"""
         pass
     
     @abstractmethod
@@ -37,23 +37,23 @@ class TransacaoRepositoryInterface(ABC):
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
     ) -> Dict[str, Any]:
-        """Obtém transações paginadas com filtros opcionais"""
+        """Obtém transações de crédito de forma paginada com filtros opcionais"""
         pass
     
     @abstractmethod
-    def create(self, transacao: Transacao) -> Transacao:
-        """Cria uma nova transação"""
+    def create(self, transacao: TransacaoCredito) -> TransacaoCredito:
+        """Cria uma nova transação de crédito"""
         pass
     
     @abstractmethod
-    def update(self, row_index: int, transacao: Transacao) -> Transacao:
-        """Atualiza uma transação existente pelo índice da linha"""
+    def update(self, row_index: int, transacao: TransacaoCredito) -> TransacaoCredito:
+        """Atualiza uma transação de crédito existente pelo índice da linha"""
         pass
     
     @abstractmethod
     def delete(self, row_index: int) -> bool:
-        """Deleta uma transação pelo índice da linha"""
+        """Deleta uma transação de crédito pelo índice da linha"""
         pass

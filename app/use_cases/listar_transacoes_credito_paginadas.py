@@ -1,22 +1,22 @@
 """
-Use Case: Listar transações de forma paginada
+Use Case: Listar transações de crédito de forma paginada
 """
 from typing import Dict, Any, Optional
-from app.data.repositories.transacao_repository_interface import TransacaoRepositoryInterface
-from app.domain.entities import Transacao
+from app.data.repositories.transacao_credito_repository_interface import TransacaoCreditoRepositoryInterface
+from app.domain.entities import TransacaoCredito
 
 
-class ListarTransacoesPaginadas:
+class ListarTransacoesCreditoPaginadas:
     """
-    Caso de uso para listar transações com paginação e filtros
+    Caso de uso para listar transações de crédito com paginação e filtros
     """
     
-    def __init__(self, repository: TransacaoRepositoryInterface):
+    def __init__(self, repository: TransacaoCreditoRepositoryInterface):
         """
         Inicializa o caso de uso com um repositório
         
         Args:
-            repository: Repositório de transações
+            repository: Repositório de transações de crédito
         """
         self.repository = repository
     
@@ -30,7 +30,7 @@ class ListarTransacoesPaginadas:
         data_fim: Optional[str] = None,
         mes: Optional[str] = None,
         situacao: Optional[str] = None,
-        conta: Optional[str] = None,
+        cartao: Optional[str] = None,
         order_by: str = "data"
     ) -> Dict[str, Any]:
         """
@@ -45,8 +45,8 @@ class ListarTransacoesPaginadas:
             data_fim: Data final (DD/MM/YYYY)
             mes: Filtro por mês
             situacao: Filtro por situação
-            conta: Filtro por conta
-            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, conta)
+            cartao: Filtro por cartão
+            order_by: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
             
         Returns:
             Dicionário com dados paginados
@@ -66,7 +66,7 @@ class ListarTransacoesPaginadas:
             raise ValueError("Tipo deve ser RECEITA ou DESPESA")
         
         # Validação do order_by
-        valid_order_fields = ["data", "tipo", "categoria", "valor", "situacao", "conta"]
+        valid_order_fields = ["data", "tipo", "categoria", "valor", "situacao", "cartao"]
         if order_by not in valid_order_fields:
             raise ValueError(f"order_by deve ser um dos seguintes: {', '.join(valid_order_fields)}")
         
@@ -80,6 +80,6 @@ class ListarTransacoesPaginadas:
             data_fim=data_fim,
             mes=mes,
             situacao=situacao,
-            conta=conta,
+            cartao=cartao,
             order_by=order_by
         )

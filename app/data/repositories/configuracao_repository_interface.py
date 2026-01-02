@@ -3,7 +3,7 @@ Interface do repositório de configurações
 """
 from abc import ABC, abstractmethod
 from typing import List
-from app.domain.entities import Categoria, Status, Conta, Cartao
+from app.domain.entities import Categoria, Status, Conta, Cartao, Mes
 
 
 class ConfiguracaoRepositoryInterface(ABC):
@@ -36,6 +36,12 @@ class ConfiguracaoRepositoryInterface(ABC):
         Args:
             tipo: Filtro opcional por tipo ("RECEITA" ou "DESPESA")
         """
+        pass
+    
+    # Meses
+    @abstractmethod
+    def get_all_meses(self) -> List[Mes]:
+        """Obtém todos os meses"""
         pass
     
     # Contas

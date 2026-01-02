@@ -1,34 +1,34 @@
 """
-Rotas de transações
+Rotas de transações de cartão de crédito
 """
 from fastapi import APIRouter, Query, HTTPException, Depends, status
 from typing import Optional
 from app.domain.schemas import (
-    PaginatedResponse, 
-    TransacaoSchema, 
-    CreateTransacaoRequest, 
-    UpdateTransacaoRequest,
+    PaginatedCreditoResponse, 
+    TransacaoCreditoSchema, 
+    CreateTransacaoCreditoRequest,
+    UpdateTransacaoCreditoRequest,
     SuccessResponse
 )
-from app.use_cases.listar_transacoes_paginadas import ListarTransacoesPaginadas
-from app.use_cases.criar_transacao import CriarTransacao
-from app.use_cases.atualizar_transacao import AtualizarTransacao
-from app.use_cases.deletar_transacao import DeletarTransacao
+from app.use_cases.listar_transacoes_credito_paginadas import ListarTransacoesCreditoPaginadas
+from app.use_cases.criar_transacao_credito import CriarTransacaoCredito
+from app.use_cases.atualizar_transacao_credito import AtualizarTransacaoCredito
+from app.use_cases.deletar_transacao_credito import DeletarTransacaoCredito
 from app.api.dependencies import (
-    get_listar_transacoes_use_case, 
-    get_criar_transacao_use_case,
-    get_atualizar_transacao_use_case,
-    get_deletar_transacao_use_case
+    get_listar_transacoes_credito_use_case, 
+    get_criar_transacao_credito_use_case,
+    get_atualizar_transacao_credito_use_case,
+    get_deletar_transacao_credito_use_case
 )
 
 router = APIRouter(
-    prefix="/api/transacoes",
-    tags=["Transações"]
+    prefix="/api/transacoes-credito",
+    tags=["Transações de Crédito"]
 )
 
 
-@router.get("", response_model=PaginatedResponse)
-async def listar_transacoes(
+@router.get("", response_model=PaginatedCreditoResponse)
+async def listar_transacoes_credito(
     page: int = Query(1, ge=1, description="Número da página"),
     page_size: int = Query(10, ge=1, le=100, description="Quantidade de itens por página"),
     tipo: Optional[str] = Query(None, description="Filtro por tipo: RECEITA ou DESPESA"),
@@ -37,12 +37,12 @@ async def listar_transacoes(
     data_fim: Optional[str] = Query(None, description="Data final (DD/MM/YYYY)"),
     mes: Optional[str] = Query(None, description="Filtro por mês (ex: Janeiro, Dezembro)"),
     situacao: Optional[str] = Query(None, description="Filtro por situação (ex: Pago, A pagar, Recebido, A receber)"),
-    conta: Optional[str] = Query(None, description="Filtro por conta"),
-    order_by: str = Query("data", description="Campo para ordenação: data, tipo, categoria, valor, situacao, conta"),
-    use_case: ListarTransacoesPaginadas = Depends(get_listar_transacoes_use_case)
+    cartao: Optional[str] = Query(None, description="Filtro por cartão"),
+    order_by: str = Query("data", description="Campo para ordenação: data, tipo, categoria, valor, situacao, cartao"),
+    use_case: ListarTransacoesCreditoPaginadas = Depends(get_listar_transacoes_credito_use_case)
 ):
     """
-    Lista as transações de forma paginada com filtros opcionais
+    Lista as transações de cartão de crédito de forma paginada com filtros opcionais
     
     - **page**: Número da página (começa em 1)
     - **page_size**: Quantidade de itens por página (máximo 100)
@@ -52,8 +52,8 @@ async def listar_transacoes(
     - **data_fim**: Data final no formato DD/MM/YYYY
     - **mes**: Filtro por mês (ex: Janeiro, Dezembro)
     - **situacao**: Filtro por situação (ex: Pago, A pagar para DESPESA; Recebido, A receber para RECEITA)
-    - **conta**: Filtro por nome da conta
-    - **order_by**: Campo para ordenação (data, tipo, categoria, valor, situacao, conta) - padrão: data
+    - **cartao**: Filtro por nome do cartão
+    - **order_by**: Campo para ordenação (data, tipo, categoria, valor, situacao, cartao)
     """
     try:
         result = use_case.execute(
@@ -65,17 +65,17 @@ async def listar_transacoes(
             data_fim=data_fim,
             mes=mes,
             situacao=situacao,
-            conta=conta,
+            cartao=cartao,
             order_by=order_by
         )
         
         # Converte entidades para schemas
         transacoes_schema = [
-            TransacaoSchema(**transacao.to_dict())
+            TransacaoCreditoSchema(**transacao.to_dict())
             for transacao in result["items"]
         ]
         
-        return PaginatedResponse(
+        return PaginatedCreditoResponse(
             total=result["total"],
             page=result["page"],
             page_size=result["page_size"],
@@ -86,28 +86,25 @@ async def listar_transacoes(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Erro ao obter transações: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("", response_model=TransacaoSchema, status_code=status.HTTP_201_CREATED)
-async def criar_transacao(
-    request: CreateTransacaoRequest,
-    use_case: CriarTransacao = Depends(get_criar_transacao_use_case)
+@router.post("", response_model=TransacaoCreditoSchema, status_code=status.HTTP_201_CREATED)
+async def criar_transacao_credito(
+    request: CreateTransacaoCreditoRequest,
+    use_case: CriarTransacaoCredito = Depends(get_criar_transacao_credito_use_case)
 ):
     """
-    Cria uma nova transação
+    Cria uma nova transação de cartão de crédito
     
     - **tipo**: Tipo da transação (ex: Receita, Despesa)
     - **descritivo**: Descrição da transação
-    - **valor**: Valor da transação (ex: R$ 150,00)
+    - **valor**: Valor da transação (ex: R$ 85,00)
     - **data**: Data da transação (DD/MM/YYYY)
     - **mes**: Mês da transação (ex: Janeiro, Dezembro)
     - **detalhes**: Detalhes adicionais (opcional)
     - **situacao**: Situação da transação (ex: Pago, A pagar)
-    - **conta**: Conta relacionada
+    - **cartao**: Cartão relacionado
     """
     try:
         transacao = use_case.execute(
@@ -117,39 +114,39 @@ async def criar_transacao(
             data=request.data,
             mes=request.mes,
             situacao=request.situacao,
-            conta=request.conta,
+            cartao=request.cartao,
             detalhes=request.detalhes or ""
         )
         
-        return TransacaoSchema(**transacao.to_dict())
+        return TransacaoCreditoSchema(**transacao.to_dict())
         
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao criar transação: {str(e)}"
+            detail=f"Erro ao criar transação de crédito: {str(e)}"
         )
 
 
-@router.put("/{row_index}", response_model=TransacaoSchema)
-async def atualizar_transacao(
+@router.put("/{row_index}", response_model=TransacaoCreditoSchema)
+async def atualizar_transacao_credito(
     row_index: int,
-    request: UpdateTransacaoRequest,
-    use_case: AtualizarTransacao = Depends(get_atualizar_transacao_use_case)
+    request: UpdateTransacaoCreditoRequest,
+    use_case: AtualizarTransacaoCredito = Depends(get_atualizar_transacao_credito_use_case)
 ):
     """
-    Atualiza uma transação existente
+    Atualiza uma transação de cartão de crédito existente
     
     - **row_index**: Índice da linha na planilha (>= 2, pois linha 1 é o cabeçalho)
     - **tipo**: Tipo da transação (ex: Receita, Despesa)
     - **descritivo**: Descrição da transação
-    - **valor**: Valor da transação (ex: R$ 150,00)
+    - **valor**: Valor da transação (ex: R$ 85,00)
     - **data**: Data da transação (DD/MM/YYYY)
     - **mes**: Mês da transação (ex: Janeiro, Dezembro)
     - **detalhes**: Detalhes adicionais (opcional)
     - **situacao**: Situação da transação (ex: Pago, A pagar)
-    - **conta**: Conta relacionada
+    - **cartao**: Cartão relacionado
     """
     try:
         transacao = use_case.execute(
@@ -160,40 +157,40 @@ async def atualizar_transacao(
             data=request.data,
             mes=request.mes,
             situacao=request.situacao,
-            conta=request.conta,
+            cartao=request.cartao,
             detalhes=request.detalhes or ""
         )
         
-        return TransacaoSchema(**transacao.to_dict())
+        return TransacaoCreditoSchema(**transacao.to_dict())
         
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao atualizar transação: {str(e)}"
+            detail=f"Erro ao atualizar transação de crédito: {str(e)}"
         )
 
 
 @router.delete("/{row_index}", response_model=SuccessResponse)
-async def deletar_transacao(
+async def deletar_transacao_credito(
     row_index: int,
-    use_case: DeletarTransacao = Depends(get_deletar_transacao_use_case)
+    use_case: DeletarTransacaoCredito = Depends(get_deletar_transacao_credito_use_case)
 ):
     """
-    Deleta uma transação
+    Deleta uma transação de cartão de crédito
     
     - **row_index**: Índice da linha na planilha (>= 2, pois linha 1 é o cabeçalho)
     """
     try:
         use_case.execute(row_index=row_index)
         
-        return SuccessResponse(message=f"Transação na linha {row_index} deletada com sucesso")
+        return SuccessResponse(message=f"Transação de crédito na linha {row_index} deletada com sucesso")
         
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao deletar transação: {str(e)}"
+            detail=f"Erro ao deletar transação de crédito: {str(e)}"
         )
